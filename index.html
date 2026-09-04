@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taller Práctico Meta Ads para WhatsApp | JB Funnels</title>
+  <meta name="description" content="Aprende a crear anuncios en Facebook e Instagram que sí traigan mensajes a tu WhatsApp sin enredos técnicos ni píxeles complejos.">
+  <link rel="icon" type="image/png" href="logo.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#0B1120',
+            brandCard: '#151F32',
+            brandGreen: '#22C55E',
+            brandGreenHover: '#16A34A',
+            brandAmber: '#F59E0B',
+            brandBlue: '#38BDF8',
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .glow-green:hover { box-shadow: 0 0 25px rgba(34, 197, 94, 0.4); }
+    .glow-blue:hover { box-shadow: 0 0 25px rgba(56, 189, 248, 0.35); }
+    .glow-help:hover { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  </style>
+</head>
+<body class="bg-brandDark text-slate-100 antialiased selection:bg-brandGreen selection:text-black relative">
+
+  <!-- LIENZO ANIMADO: BURBUJAS Y NOTIFICACIONES FLOTANTES (OPCIÓN 2) -->
+  <canvas id="chatBubblesCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-40"></canvas>
+
+  <!-- NAVBAR -->
+  <header class="w-full bg-brandDark/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- LOGO CON RESGUARDO VISUAL -->
+      <a href="#" class="flex items-center gap-3">
+        <img src="logo.png" alt="" onerror="this.style.display='none'; document.getElementById('badge-logo').style.display='flex';" class="h-11 w-11 object-contain">
+        <div id="badge-logo" class="hidden w-11 h-11 rounded-full border-2 border-brandGreen items-center justify-center font-black text-brandGreen bg-slate-800 text-sm">
+          JB
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-white block leading-none">JB FUNNELS</span>
+          <span class="text-[10px] text-brandGreen font-bold tracking-wider uppercase">Taller Práctico Express</span>
+        </div>
+      </a>
+
+      <!-- ACCIONES: REDES SOCIALES (FB PRIMERO, IG SEGUNDO) + BOTÓN SITIO OFICIAL -->
+      <div class="flex items-center space-x-3 sm:space-x-4">
+        
+        <!-- Icono Facebook (Primero) -->
+        <a href="https://www.facebook.com/share/1FFRKCUr2s/" target="_blank" rel="noopener noreferrer" 
+           class="text-slate-400 hover:text-brandBlue transition p-1.5" title="Facebook JB Funnels">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+
+        <!-- Icono Instagram (Segundo) -->
+        <a href="https://www.instagram.com/jbfunnels?igsi=MjVib2Y3eHRuOHYx" target="_blank" rel="noopener noreferrer" 
+           class="text-slate-400 hover:text-brandBlue transition p-1.5" title="Instagram JB Funnels">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+
+        <!-- Botón Sitio Oficial -->
+        <a href="https://jb-funnels.com" target="_blank" rel="noopener noreferrer"
+           class="text-xs font-semibold px-4 py-2 rounded-full border border-slate-700 bg-slate-800/80 hover:bg-slate-700 hover:text-brandBlue text-slate-300 transition flex items-center gap-2">
+          <span>Visita nuestro sitio web oficial</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="pt-12 pb-16 px-6 max-w-5xl mx-auto text-center">
+    
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-brandGreen text-xs font-bold uppercase tracking-wider mb-6">
+      <span class="w-2.5 h-2.5 rounded-full bg-brandGreen animate-pulse"></span>
+      Taller Práctico en Vivo Vía Google Meet · 90 Minutos
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight max-w-4xl mx-auto">
+      Aprende a Crear Anuncios en Facebook e Instagram que <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-brandBlue">Sí Traigan Mensajes a tu WhatsApp</span>, Sin Enredos Técnicos ni Píxeles Complejos
+    </h1>
+
+    <p class="mt-6 text-slate-300 text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
+      Un taller 100% interactivo y en vivo diseñado para emprendedores y negocios locales que quieren vender servicios o productos directamente por chat, sin seguir tirando dinero en botones de «promocionar».
+    </p>
+
+    <div class="mt-8 inline-block p-4 rounded-2xl bg-brandCard border border-slate-700 shadow-xl">
+      <div class="flex items-center justify-center gap-3">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Inversión única y accesible:</span>
+        <span class="text-3xl font-black text-emerald-400">$150 <span class="text-xs text-slate-300 font-normal">MXN</span></span>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-1">Sala reducida a máximo 10 personas para resolver dudas puntuales de tu negocio.</p>
+    </div>
+
+  </section>
+
+  <!-- SECCIÓN DE CALIFICACIÓN (FILTRO EXPLÍCITO) -->
+  <section class="py-12 bg-slate-900/60 border-y border-slate-800">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-white">¿Este taller es el adecuado para ti?</h2>
+        <p class="text-slate-400 text-sm mt-2">Queremos asegurarnos de que recibas exactamente lo que necesitas sin hacerte perder el tiempo.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Tarjeta: SÍ ES PARA TI -->
+        <div class="bg-brandCard border-2 border-emerald-500/40 rounded-2xl p-7 shadow-lg">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-brandGreen flex items-center justify-center font-bold text-xl">✓</div>
+            <h3 class="text-lg font-bold text-white">Este taller SÍ es para ti si:</h3>
+          </div>
+          <ul class="space-y-4 text-sm text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-brandGreen font-bold text-base leading-none">✓</span>
+              <span>Tienes un <strong>negocio local o prestas servicios</strong> donde el cliente te consulta y te compra directamente por WhatsApp.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-brandGreen font-bold text-base leading-none">✓</span>
+              <span>Quieres aprender a <strong>montar tu campaña desde cero</strong> y saber diseñar imágenes con tu celular que Meta no te rechace ni te penalice.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-brandGreen font-bold text-base leading-none">✓</span>
+              <span><strong>No tienes página web</strong> y no quieres complicarte con código, píxeles de seguimiento ni configuraciones enredadas.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-brandGreen font-bold text-base leading-none">✓</span>
+              <span>Buscas un acompañamiento claro, humano y en español común, sin tecnicismos innecesarios.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tarjeta: NO ES PARA TI -->
+        <div class="bg-brandCard border border-rose-500/30 rounded-2xl p-7 shadow-lg">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xl">✕</div>
+            <h3 class="text-lg font-bold text-white">Este taller NO es para ti si:</h3>
+          </div>
+          <ul class="space-y-4 text-sm text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-rose-400 font-bold text-base leading-none">✕</span>
+              <span>Tienes una <strong>tienda en línea (E-commerce)</strong> con carritos de compra tipo Shopify, pues requieren catálogos y píxeles.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-rose-400 font-bold text-base leading-none">✕</span>
+              <span>Te dedicas a <strong>Bienes Raíces o desarrollos inmobiliarios</strong> (requieren embudos de calificación y prospección especializada que no veremos aquí).</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-rose-400 font-bold text-base leading-none">✕</span>
+              <span>Ya dominas analítica avanzada, telemetría CAPI y modelos de subasta complejos (para ese nivel está nuestro programa avanzado en la firma principal).</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ENTREGABLES -->
+  <section class="py-16 max-w-5xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <span class="text-xs font-bold uppercase tracking-widest text-brandBlue">Todo lo que recibirás</span>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-2">Lo que te llevas por solo $150 MXN</h2>
+      <p class="text-slate-400 text-sm mt-2">Valor real y herramientas directas para aplicar a tu negocio desde el primer día.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <div class="bg-brandCard border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-3xl mb-3">💻</div>
+          <h4 class="font-bold text-white text-base mb-2">Entrenamiento en Vivo</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            90 minutos vía Google Meet donde montamos una campaña real en pantalla paso a paso resolviendo tus dudas.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-brandCard border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-3xl mb-3">🤖</div>
+          <h4 class="font-bold text-white text-base mb-2">Asistente IA Ad-Builder</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Herramienta ligera que redacta tus textos de venta y evalúa si tu imagen cumple las políticas antes de gastar un solo peso.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-brandCard border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-3xl mb-3">🎥</div>
+          <h4 class="font-bold text-white text-base mb-2">Grabación en Video</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Acceso a la grabación completa de la videollamada para que repases el proceso las veces que necesites a tu propio ritmo.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-brandCard border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-3xl mb-3">📑</div>
+          <h4 class="font-bold text-white text-base mb-2">Plantilla y Presentación</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Documento de trabajo en PDF con la estructura exacta de anuncio y el checklist de verificación antes de encender campañas.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BONUS ESPECIALES (LIMPIO Y SIN CONFUSIÓN DE PRECIOS) -->
+    <div class="mt-8 p-6 rounded-2xl bg-gradient-to-r from-amber-500/10 via-brandCard to-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-center gap-5">
+      <div class="text-3xl">🎁</div>
+      <div>
+        <h4 class="text-sm font-bold text-amber-400 uppercase tracking-wide">Bonus especiales al finalizar el taller:</h4>
+        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          A todos los participantes que asistan y se queden hasta el final de la sesión en vivo, les entregaremos herramientas complementarias y recursos exclusivos de soporte técnico para impulsar los resultados de sus campañas en chat.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SELECTOR DE HORARIOS Y REGISTRO -->
+  <section id="registro" class="py-16 bg-slate-900/80 border-t border-slate-800">
+    <div class="max-w-4xl mx-auto px-6">
+      
+      <div class="text-center mb-10">
+        <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">Paso Final</span>
+        <h2 class="text-2xl md:text-4xl font-extrabold text-white mt-2">1. Elige tu Horario de Preferencia</h2>
+        <p class="text-slate-400 text-xs md:text-sm mt-2">Selecciona el grupo al que deseas unirte (cupo limitado a 10 personas por sala):</p>
+      </div>
+
+      <!-- SELECTOR DE TARJETAS (3 HORARIOS + 1 TARJETA TALLER AVANZADO) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        
+        <!-- Horario 1 -->
+        <div onclick="selectSlot('Sábado 11:00 AM', this)" class="slot-card cursor-pointer border-2 border-emerald-500 bg-brandCard p-5 rounded-xl text-center transition shadow-lg">
+          <span class="text-xs text-slate-400 uppercase block font-semibold">Grupo 1</span>
+          <p class="text-lg font-bold text-white mt-1">Sábado</p>
+          <p class="text-emerald-400 font-extrabold text-sm">11:00 AM</p>
+          <span class="text-[10px] text-slate-400 block mt-2">Hora Centro (CDMX)</span>
+        </div>
+
+        <!-- Horario 2 -->
+        <div onclick="selectSlot('Sábado 05:00 PM', this)" class="slot-card cursor-pointer border border-slate-700 bg-brandCard/60 p-5 rounded-xl text-center transition hover:border-slate-500">
+          <span class="text-xs text-slate-400 uppercase block font-semibold">Grupo 2</span>
+          <p class="text-lg font-bold text-white mt-1">Sábado</p>
+          <p class="text-emerald-400 font-extrabold text-sm">05:00 PM</p>
+          <span class="text-[10px] text-slate-400 block mt-2">Hora Centro (CDMX)</span>
+        </div>
+
+        <!-- Horario 3 -->
+        <div onclick="selectSlot('Domingo 10:00 AM', this)" class="slot-card cursor-pointer border border-slate-700 bg-brandCard/60 p-5 rounded-xl text-center transition hover:border-slate-500">
+          <span class="text-xs text-slate-400 uppercase block font-semibold">Grupo 3</span>
+          <p class="text-lg font-bold text-white mt-1">Domingo</p>
+          <p class="text-emerald-400 font-extrabold text-sm">10:00 AM</p>
+          <span class="text-[10px] text-slate-400 block mt-2">Hora Centro (CDMX)</span>
+        </div>
+
+        <!-- BOTÓN ADICIONAL: TALLER AVANZADO -->
+        <a href="https://jb-funnels.com/#capacitaciones" target="_blank" 
+           class="border border-brandBlue/40 bg-slate-800/80 hover:bg-brandBlue/10 p-5 rounded-xl text-center transition flex flex-col justify-between group">
+          <div>
+            <span class="text-xs text-brandBlue uppercase block font-bold">Nivel Experto</span>
+            <p class="text-sm font-bold text-white mt-1 leading-snug group-hover:text-brandBlue transition">
+              Me interesa un taller más avanzado
+            </p>
+          </div>
+          <span class="text-[11px] text-slate-300 font-semibold mt-3 block">
+            Ver programas en sitio oficial &rarr;
+          </span>
+        </a>
+
+      </div>
+
+      <!-- CAJA DE PAGO Y REGISTRO -->
+      <div class="bg-brandCard border border-slate-700 rounded-2xl p-7 md:p-8 shadow-2xl text-center">
+        
+        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Horario seleccionado:</p>
+        <h3 id="selectedSlotText" class="text-xl md:text-2xl font-black text-white mt-1 mb-6">
+          Sábado 11:00 AM (Hora Centro)
+        </h3>
+
+        <div class="flex items-center justify-center gap-3 mb-6 pb-6 border-b border-slate-800">
+          <span class="text-slate-400 text-xs">Total a pagar:</span>
+          <span class="text-3xl font-black text-emerald-400">$150 <span class="text-xs text-slate-300 font-normal">MXN</span></span>
+        </div>
+
+        <!-- OPCIÓN 1: MERCADO PAGO -->
+        <a href="https://mpago.la/1iBCzqi" target="_blank"
+           class="w-full block py-4 px-6 rounded-xl bg-brandGreen hover:bg-brandGreenHover text-black font-extrabold text-sm uppercase tracking-wider transition shadow-lg glow-green mb-3">
+          💳 Pagar con Tarjeta / Mercado Pago ($150 MXN)
+        </a>
+
+        <!-- OPCIÓN 2: TRANSFERENCIA / OXXO VÍA WHATSAPP -->
+        <a id="waPayBtn" 
+           href="https://wa.me/5219992248818?text=Hola%20JB%20Funnels,%20deseo%20apartar%20mi%20lugar%20para%20el%20Taller%20Práctico%20del%20Sábado%2011:00%20AM%20y%20pagar%20$150%20pesos%20por%20transferencia%20SPEI%20o%20en%20OXXO." 
+           target="_blank"
+           class="w-full block py-3.5 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider transition mb-3">
+          📲 Pagar por Transferencia (SPEI) u OXXO vía WhatsApp &rarr;
+        </a>
+
+        <!-- OPCIÓN 3: CALENDLY -->
+        <a href="https://calendly.com/jbfunnelsmx/taller-de-facebook-a-instagram-a-whatsapp" target="_blank"
+           class="w-full block py-3 px-6 rounded-xl border border-brandBlue/50 bg-slate-900/60 hover:bg-brandBlue/10 text-brandBlue hover:text-white font-bold text-xs uppercase tracking-wider transition">
+          🗓️ O agenda directamente tu horario en Calendly &rarr;
+        </a>
+
+        <p class="text-[11px] text-slate-400 mt-5 leading-relaxed">
+          * Una vez realizado tu pago, envíanos tu comprobante por WhatsApp para registrar tu correo y enviarte el enlace de Google Meet y los accesos a la herramienta.
+        </p>
+
+      </div>
+
+      <!-- BOTÓN LARGO: SOPORTE INMEDIATO SI NO LOGRARON REGISTRARSE -->
+      <div class="mt-6">
+        <a href="https://wa.me/5219992248818?text=Hola%20JB%20Funnels,%20no%20logr%C3%A9%20registrarme%20al%20taller,%20%C2%BFme%20pueden%20apoyar%20por%20favor?" 
+           target="_blank"
+           class="w-full py-4 px-6 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border-2 border-amber-500/60 text-amber-300 hover:text-white font-extrabold text-xs sm:text-sm tracking-wider uppercase transition flex items-center justify-center gap-3 shadow-lg glow-help text-center">
+          <!-- Ícono de Chat / Alerta -->
+          <svg class="w-5 h-5 flex-shrink-0 fill-current text-amber-400" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+          </svg>
+          <span>¿NO LOGRASTE REGISTRARTE? PRESIONA AQUÍ PARA AYUDARTE POR WHATSAPP</span>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-10 border-t border-slate-800 text-center text-xs text-slate-500 bg-brandDark">
+    <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-slate-400 font-semibold">&copy; 2026 JB Funnels. Todos los derechos reservados.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="https://www.facebook.com/share/1FFRKCUr2s/" target="_blank" class="hover:text-brandBlue">Facebook</a>
+        <span>·</span>
+        <a href="https://www.instagram.com/jbfunnels?igsi=MjVib2Y3eHRuOHYx" target="_blank" class="hover:text-brandBlue">Instagram</a>
+        <span>·</span>
+        <a href="https://jb-funnels.com" target="_blank" class="text-brandBlue hover:underline">
+          Sitio Oficial
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT PARA INTERACTIVIDAD Y ANIMACIÓN DE BURBUJAS DE MENSAJES -->
+  <script>
+    // 1. Selector de Horarios
+    let currentSlot = "Sábado 11:00 AM";
+
+    function selectSlot(slot, element) {
+      currentSlot = slot;
+
+      document.querySelectorAll('.slot-card').forEach(card => {
+        card.className = "slot-card cursor-pointer border border-slate-700 bg-brandCard/60 p-5 rounded-xl text-center transition hover:border-slate-500";
+      });
+
+      element.className = "slot-card cursor-pointer border-2 border-emerald-500 bg-brandCard p-5 rounded-xl text-center transition shadow-lg";
+      document.getElementById('selectedSlotText').innerText = slot + " (Hora Centro)";
+
+      const message = encodeURIComponent(`Hola JB Funnels, deseo apartar mi lugar para el Taller Práctico del ${slot} y pagar $150 pesos por transferencia SPEI o en OXXO.`);
+      document.getElementById('waPayBtn').href = `https://wa.me/5219992248818?text=${message}`;
+    }
+
+    // 2. Animación de Burbujas de Chat / Notificaciones Flotantes (Opción 2)
+    const canvas = document.getElementById('chatBubblesCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const bubbles = [];
+    const bubbleCount = 22;
+
+    const colors = [
+      'rgba(34, 197, 94, 0.18)',   // WhatsApp Green
+      'rgba(56, 189, 248, 0.15)',  // Electric Blue
+      'rgba(16, 185, 129, 0.16)'   // Teal Green
+    ];
+
+    for (let i = 0; i < bubbleCount; i++) {
+      bubbles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        w: 38 + Math.random() * 26,
+        h: 24 + Math.random() * 12,
+        r: 8,
+        vy: 0.25 + Math.random() * 0.45,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        hasLines: Math.random() > 0.4
+      });
+    }
+
+    function drawBubble(b) {
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.moveTo(b.x + b.r, b.y);
+      ctx.lineTo(b.x + b.w - b.r, b.y);
+      ctx.quadraticCurveTo(b.x + b.w, b.y, b.x + b.w, b.y + b.r);
+      ctx.lineTo(b.x + b.w, b.y + b.h - b.r);
+      ctx.quadraticCurveTo(b.x + b.w, b.y + b.h, b.x + b.w - b.r, b.y + b.h);
+      // Cola de la burbuja de chat
+      ctx.lineTo(b.x + 14, b.y + b.h);
+      ctx.lineTo(b.x + 6, b.y + b.h + 6);
+      ctx.lineTo(b.x + 9, b.y + b.h);
+      ctx.lineTo(b.x + b.r, b.y + b.h);
+      ctx.quadraticCurveTo(b.x, b.y + b.h, b.x, b.y + b.h - b.r);
+      ctx.lineTo(b.x, b.y + b.r);
+      ctx.quadraticCurveTo(b.x, b.y, b.x + b.r, b.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Líneas simulando texto dentro del mensaje
+      if (b.hasLines) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.fillRect(b.x + 6, b.y + 7, b.w - 14, 2.5);
+        ctx.fillRect(b.x + 6, b.y + 13, (b.w - 14) * 0.6, 2.5);
+      }
+    }
+
+    function animateBubbles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < bubbleCount; i++) {
+        let b = bubbles[i];
+        b.y -= b.vy;
+
+        // Si sube más allá de la pantalla, reiniciar abajo
+        if (b.y + b.h + 10 < 0) {
+          b.y = canvas.height + 15;
+          b.x = Math.random() * canvas.width;
+        }
+
+        drawBubble(b);
+      }
+      requestAnimationFrame(animateBubbles);
+    }
+    animateBubbles();
+  </script>
+</body>
+</html>
